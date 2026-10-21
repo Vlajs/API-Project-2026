@@ -8,7 +8,7 @@ import java.util.Locale;
 
 public class TestDataGenerator {
 
-    private static final Faker faker = new Faker(new Locale("en-US"));
+    private static final Faker faker = new Faker(Locale.US);
 
     public static UserRequest createUser() {
 

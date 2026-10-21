@@ -1,7 +1,6 @@
 package baseTests;
 
 import config.Config;
-import org.testng.annotations.BeforeClass;
 import org.testng.annotations.BeforeMethod;
 import org.testng.asserts.SoftAssert;
 import services.UserService;

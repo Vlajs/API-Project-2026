@@ -4,6 +4,7 @@ import baseTests.BaseTests;
 import io.restassured.response.Response;
 import models.user.UserRequest;
 import models.user.UserResponse;
+import org.testng.Assert;
 import org.testng.annotations.Test;
 import utils.TestData;
 import utils.TestDataGenerator;
@@ -17,7 +18,7 @@ public class UserCreateTests extends BaseTests {
 
         Response createdUserResponse = userService.createUser(user);
 
-        softAssert.assertEquals(createdUserResponse.statusCode(), 200);
+        Assert.assertEquals(createdUserResponse.statusCode(), 200);
 
         UserResponse createdUserBody = createdUserResponse.as(UserResponse.class);
 

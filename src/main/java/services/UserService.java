@@ -30,6 +30,17 @@ public class UserService {
                 .extract()
                 .response();
     }
+    public Response getAllUsers(int page, int limit){
+
+        return given()
+                .queryParam("page", page)
+                .queryParam("limit", limit)
+                .when()
+                .get(Constants.GET_ALL_USERS)
+                .then()
+                .extract()
+                .response();
+    }
     public Response getUserById(String userId){
 
         return given()

@@ -15,6 +15,7 @@ import java.util.Map;
 public class Config {
 
     public void setUp(){
+        RestAssured.reset();
         Map<String, String> headers = new HashMap<>();
 
         headers.put("app-id", TestData.APP_ID);

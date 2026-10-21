@@ -4,12 +4,14 @@ import baseTests.BaseTests;
 import io.restassured.response.Response;
 import models.user.UserRequest;
 import models.user.UserResponse;
+import org.testng.Assert;
 import org.testng.annotations.Test;
 import utils.TestData;
 import utils.TestDataGenerator;
 
 public class UserUpdateTests extends BaseTests {
 
+    // Observed behavior (not documented): a changed email in PUT is ignored, the response keeps the original email.
     @Test
     public void updateUserByIdTest(){
 
@@ -17,7 +19,7 @@ public class UserUpdateTests extends BaseTests {
 
         Response createdUserResponse = userService.createUser(user);
 
-        softAssert.assertEquals(createdUserResponse.statusCode(), 200);
+        Assert.assertEquals(createdUserResponse.statusCode(), 200);
 
         UserResponse createdUserBody = createdUserResponse.as(UserResponse.class);
 
@@ -32,7 +34,7 @@ public class UserUpdateTests extends BaseTests {
 
         Response updatedUserResponse = userService.updateUserById(updatedUser, userId);
 
-        softAssert.assertEquals(updatedUserResponse.statusCode(), 200);
+        Assert.assertEquals(updatedUserResponse.statusCode(), 200);
 
         UserResponse updatedUserBody = updatedUserResponse.as(UserResponse.class);
 
@@ -40,6 +42,8 @@ public class UserUpdateTests extends BaseTests {
         softAssert.assertEquals(updatedUserBody.getFirstName(), updatedUser.getFirstName());
         softAssert.assertEquals(updatedUserBody.getLastName(), updatedUser.getLastName());
         softAssert.assertEquals(updatedUserBody.getEmail(), createdUserBody.getEmail());
+        softAssert.assertEquals(updatedUserBody.getRegisterDate(), createdUserBody.getRegisterDate());
+        softAssert.assertNotEquals(updatedUserBody.getUpdatedDate(), createdUserBody.getUpdatedDate());
         softAssert.assertAll();
 
     }
@@ -62,7 +66,9 @@ public class UserUpdateTests extends BaseTests {
     @Test
     public void updateUserByNonExistingIdTest(){
 
-        UserRequest user = TestDataGenerator.createUser();
+        UserRequest user = UserRequest.builder()
+                .firstName("Updated First Name")
+                .build();
 
         String nonExistingUserId = "aaaaaaaaaaaaaaaaaaaaaaaa";
 
@@ -70,6 +76,39 @@ public class UserUpdateTests extends BaseTests {
 
         softAssert.assertEquals(nonExistingUserIdResponse.statusCode(), 400);
         softAssert.assertEquals(nonExistingUserIdResponse.jsonPath().getString("error"), TestData.BODY_NOT_VALID);
+        softAssert.assertAll();
+
+    }
+
+    @Test
+    public void updateUserPartiallyTest(){
+
+        UserRequest user = TestDataGenerator.createUser();
+
+        Response createdUserResponse = userService.createUser(user);
+
+        Assert.assertEquals(createdUserResponse.statusCode(), 200);
+
+        UserResponse createdUserBody = createdUserResponse.as(UserResponse.class);
+
+        String userId = createdUserBody.getId();
+
+        UserRequest partialUpdate = UserRequest.builder()
+                .firstName("Partially Updated")
+                .build();
+
+        Response updatedUserResponse = userService.updateUserById(partialUpdate, userId);
+
+        Assert.assertEquals(updatedUserResponse.statusCode(), 200);
+
+        UserResponse updatedUserBody = updatedUserResponse.as(UserResponse.class);
+
+        softAssert.assertEquals(updatedUserBody.getId(), userId);
+        softAssert.assertEquals(updatedUserBody.getFirstName(), partialUpdate.getFirstName());
+        softAssert.assertEquals(updatedUserBody.getLastName(), createdUserBody.getLastName());
+        softAssert.assertEquals(updatedUserBody.getEmail(), createdUserBody.getEmail());
+        softAssert.assertEquals(updatedUserBody.getPhone(), createdUserBody.getPhone());
+        softAssert.assertEquals(updatedUserBody.getLocation(), createdUserBody.getLocation());
         softAssert.assertAll();
 
     }
